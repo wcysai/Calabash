@@ -63,6 +63,7 @@ int lca(int u,int v)
 int build_vtree(vector<int> &a)
 {
     sort(a.begin(),a.end(),cmp);
+    a.erase(unique(a.begin(),a.end()),a.end());
     assert(a.size()>0);
     int t=0;
     st[t++]=a[0];
@@ -191,12 +192,8 @@ int main()
             }
         }
     }
-    sort(a.begin(),a.end());
-    a.erase(unique(a.begin(),a.end()),a.end());
     init(n);
     root=build_vtree(a);assert(root==1);
-    sort(a.begin(),a.end());
-    a.erase(unique(a.begin(),a.end()),a.end());
     dfs3(root,root);
     int cnt=(int)E.size(),ans=0;
     for(int i=1;i<(1<<cnt);i++)
