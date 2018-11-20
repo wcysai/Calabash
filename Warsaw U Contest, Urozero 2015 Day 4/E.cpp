@@ -21,8 +21,9 @@ typedef long long ll;
 typedef pair<int,int> P;
 ll n,a[MAXN];
 ll x1,y1,x2,y2;
-ll ans[MAXN],k[MAXN],x[MAXN],y[MAXN];
-ll bit[MAXN+1];
+int ans[MAXN];
+ll x[MAXN],y[MAXN];
+int bit[MAXN+1],k[MAXN];
 bool f;
 ll sum(ll i)
 {
@@ -44,8 +45,7 @@ void add(ll i,ll x)
 }
 struct node
 {
-    ll x,y;
-    ll t;
+    int x,y,t;
 };
 vector<node> all;
 bool cmp(node p,node q)
@@ -62,11 +62,11 @@ void solve(vector<node> &v,ll l,ll r)
     }
     ll mid=(l+r)/2;
     sort(v.begin(),v.end(),cmp);
-    vector<node> lit;lit.clear();
-    vector<node> notlit;notlit.clear();
-    vector<node> tobeadded;tobeadded.clear();
-    vector<node> realnotlit;realnotlit.clear();
-    vector<ll> save;save.clear();
+    vector<node> lit;lit.shrink_to_fit();
+    vector<node> notlit;notlit.shrink_to_fit();
+    vector<node> tobeadded;tobeadded.shrink_to_fit();
+    vector<node> realnotlit;realnotlit.shrink_to_fit();
+    vector<ll> save;save.shrink_to_fit();
     for(auto it:v) if(it.t<=mid) lit.push_back(it); else notlit.push_back(it);
     ll now=0;
     for(ll i=0;i<(int)notlit.size();i++)
@@ -85,7 +85,10 @@ void solve(vector<node> &v,ll l,ll r)
         }
     }
     for(auto it:tobeadded) lit.push_back(it);
-    for(auto it:save) add(it,-1); 
+    for(auto it:save) add(it,-1);
+    notlit.clear();notlit.shrink_to_fit();
+    tobeadded.clear();tobeadded.shrink_to_fit();
+    save.clear();save.shrink_to_fit();
     solve(lit,l,mid);solve(realnotlit,mid+1,r);
 }
 int main()
@@ -135,11 +138,11 @@ int main()
     {
         x[i]=lower_bound(cmp1.begin(),cmp1.end(),x[i])-cmp1.begin()+1;
         y[i]=lower_bound(cmp2.begin(),cmp2.end(),y[i])-cmp2.begin()+1;
-        all.push_back((node){x[i],y[i],i});
+        all.push_back((node){(int)x[i],(int)y[i],i});
     }
-    for(ll i=1;i<=n;i++) scanf("%lld",&k[i]);
+    for(ll i=1;i<=n;i++) scanf("%d",&k[i]);
     solve(all,1,n);
-    for(ll i=1;i<=n;i++) printf("%lld%c",ans[i],i==n?'\n':' ');
+    for(ll i=1;i<=n;i++) printf("%d%c",ans[i],i==n?'\n':' ');
     return 0;
 }
 
