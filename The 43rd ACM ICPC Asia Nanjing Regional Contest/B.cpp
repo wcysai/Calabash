@@ -15,30 +15,38 @@
 using namespace std;
 typedef long long ll;
 typedef pair<ll,ll> P;
-ll N,K,a[MAXN],sum[MAXN],dp[MAXN],opt[MAXN],cnt[MAXN];
-ll findcost(ll l,ll r,ll x)
+ll N,K,a[MAXN],sum[MAXN],dp[MAXN],opt[MAXN],L[MAXN],R[MAXN],num[MAXN];
+ll findcost(ll l,ll r)
 {
     ll mid=(l+r)/2;
-    return a[mid]*(mid*2-l-r)-sum[mid-1]+sum[l-1]+sum[r]-sum[mid]+x;
+    return a[mid]*(mid*2-l-r)-sum[mid-1]+sum[l-1]+sum[r]-sum[mid];
 }
 P C(ll x)
 {
-    fill(dp,dp+N+1,INF);memset(cnt,0,sizeof(cnt));
-    dp[0]=0,opt[0]=1;
-    vector<P> v;v.clear();
-    v.push_back(P(1,1));
+    dp[0]=0,num[0]=0;
+    L[1]=1,R[1]=N,opt[1]=0;
+    ll s=1,t=1;
     for(ll i=1;i<=N;i++)
     {
-        ll l=opt[i-1]-1,r=i;
-        while(r-l>1)
+        while(s+1<=t&&R[s]<i) ++s;
+        dp[i]=dp[opt[s]]+findcost(opt[s]+1,i)+x;
+        num[i]=num[opt[s]]+1;
+        while(s<=t&&i<=L[t]&&dp[opt[t]]+findcost(opt[t]+1,L[t])>dp[i]+findcost(i+1,L[t])) --t;
+        if(s>t) ++t,opt[t]=i,L[t]=i+1,R[t]=N;
+        else
         {
-            ll mid=(l+r)/2;
-            if(dp[mid-1]+findcost(mid,i,x)<=dp[mid]+findcost(mid+1,i,x)) r=mid; else l=mid;
+            ll l=max(L[t],i),r=R[t],ps=r+1;
+            while(l<=r)
+            {
+                ll mid=(l+r)/2;
+                if(dp[opt[t]]+findcost(opt[t]+1,mid)>dp[i]+findcost(i+1,mid)) ps=mid,r=mid-1;
+                else l=mid+1;
+            }
+            R[t]=ps-1;
+            if(ps<=N) ++t,opt[t]=i,L[t]=ps,R[t]=N;
         }
-        opt[i]=r;dp[i]=dp[opt[i]-1]+findcost(opt[i],i,x);cnt[i]=cnt[opt[i]-1]+1;
-        if(x==55)printf("%lld %lld %lld\n",i,opt[i],dp[i]);
     }
-    return P(dp[N],cnt[N]);
+    return P(dp[N],num[N]);
 }
 int main()
 {
@@ -52,7 +60,7 @@ int main()
         if(C(mid).S>K) l=mid; else r=mid;
     }
     //printf("%lld %lld\n",C(INF).F,C(INF).S);
-    printf("%lld %lld %lld\n",l,C(l).F,C(l).S);
+    //printf("%lld %lld %lld\n",r,C(r).F,C(r).S);
     printf("%lld\n",C(r).F-r*K);
     return 0;
 }
