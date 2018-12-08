@@ -8,18 +8,19 @@ using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
 char str[20];
-int grid[MAXN][MAXN];
-int cntr[MAXN],cntc[MAXN],cnt;
-int n,m;
+ll cntr[MAXN],cntc[MAXN],cnt;
+ll dummy,dumr[MAXN],dumc[MAXN];
+ll n,m;
 struct frac
 {
-    int p,q;
+    ll p,q;
     frac(){}
-    frac(int tp,int tq) {p=tp; q=tq;}
+    frac(ll tp,ll tq) {p=tp; q=tq;}
     void norm()
     {
-        int g=__gcd(p,q);
+        ll g=__gcd(p,q);
         p/=g;q/=g;
+        if(q<0) {p*=-1; q*=-1;}
     }
     friend frac operator + (const frac &x,const frac &y)
     {
@@ -33,145 +34,200 @@ struct frac
     {
         return frac(x.p*y.p,x.q*y.q);
     }
-    friend frac operator + (const frac &x,const frac &y)
+    friend frac operator / (const frac &x,const frac &y)
     {
         return frac(x.p*y.q,x.q*y.p);
     }
     bool operator == (const frac &y)const
     {
-        return x.p*y.q==x.q*y.p;
+        return p*y.q==q*y.p;
+    }
+    bool operator != (const frac &y)const
+    {
+        return p*y.q!=q*y.p;
+    }
+    void print()
+    {
+        printf("%lld/%lld",p,q);
     }
 };
-void findrow(int x,int l,int r)
+frac grid[MAXN][MAXN];
+frac ori[MAXN][MAXN];
+void findrow(ll x,ll l,ll r)
 {
     if(l+1==r) return;
     if((r-l)&1)
     {
-        int len=r-l;
-        int a=(len-1)/2,b=(len+1)/2;
-        int ll=(l+r)/2,rr=ll+1;
+        ll len=r-l;
+        ll a=(len-1)/2,b=(len+1)/2;
+        ll ll=(l+r)/2,rr=ll+1;
         frac xx=frac(a,len),yy=frac(b,len);
-        grid[x][ll]=yy*grid[x][l]+xx*grid[x][r]; cntc[ll]++; grid[x][ll].norm();
-        grid[x][rr]=xx*grid[x][l]+yy*grid[x][r]; cntc[rr]++; grid[x][rr].norm();
+        grid[x][ll]=yy*grid[x][l]+xx*grid[x][r]; cntc[ll]++; cnt++; grid[x][ll].norm();
+        grid[x][rr]=xx*grid[x][l]+yy*grid[x][r]; cntc[rr]++; cnt++; grid[x][rr].norm();
         findrow(x,l,ll);findrow(x,rr,r);
     }
     else
     {
-        int mid=(l+r)/2;
+        ll mid=(l+r)/2;
         frac half=frac(1,2);
-        grid[x][mid]=half*grid[x][l]+half*grid[x][r]; cntc[mid]++; grid[x][mid].norm();
+        grid[x][mid]=half*grid[x][l]+half*grid[x][r]; cntc[mid]++; cnt++; grid[x][mid].norm();
         findrow(x,l,mid);findrow(x,mid,r);
     }
 }
-void solverow(int x)
+void solverow(ll x)
 {
-    int last=-1;
-    for(int i=1;i<=m;i++)
+    ll last=-1;
+    for(ll i=1;i<=m;i++)
     {
-        if(grid[x][i].p!=-1)
+        if(grid[x][i].q!=-1)
         {
             if(last!=-1) findrow(x,last,i);
             last=i;
         }
     }
-    for(int i=1;i<=m;i++)
+    for(ll i=1;i<=m;i++)
     {
-        if(grid[x][i].p!=-1)
+        if(grid[x][i].q!=-1)
         {
-            for(int j=i-1;j>=1;j--)
+            for(ll j=i-1;j>=1;j--)
             {
                 frac two=frac(2,1);
-                grid[x][j]=two*grid[x][j+1]-grid[x][j+2];
+                grid[x][j]=two*grid[x][j+1]-grid[x][j+2]; grid[x][j].norm();
                 cntc[j]++;cnt++;
             }
             break;
         }
     }
-    for(int i=m;i>=1;i--)
+    for(ll i=m;i>=1;i--)
     {
-        if(grid[x][i].p!=-1)
+        if(grid[x][i].q!=-1)
         {
-            for(int j=i+1;j<=m;j++)
+            for(ll j=i+1;j<=m;j++)
             {
                 frac two=frac(2,1);
-                grid[x][j]=two*grid[x][j-1]-grid[x][j-2];
+                grid[x][j]=two*grid[x][j-1]-grid[x][j-2]; grid[x][j].norm();
                 cntc[j]++;cnt++;
             }
             break;
         }
     }
 }
-void findcol(int x,int l,int r)
+void findcol(ll x,ll l,ll r)
 {
     if(l+1==r) return;
     if((r-l)&1)
     {
-        int len=r-l;
-        int a=(len-1)/2,b=(len+1)/2;
-        int ll=(l+r)/2,rr=ll+1;
+        ll len=r-l;
+        ll a=(len-1)/2,b=(len+1)/2;
+        ll ll=(l+r)/2,rr=ll+1;
         frac xx=frac(a,len),yy=frac(b,len);
-        grid[ll][x]=yy*grid[l][x]+xx*grid[r][x]; cntr[ll]++; grid[ll][x].norm();
-        grid[rr][x]=xx*grid[l][x]+yy*grid[r][x]; cntr[rr]++; grid[rr][x].norm();
+        grid[ll][x]=yy*grid[l][x]+xx*grid[r][x]; cntr[ll]++; cnt++; grid[ll][x].norm();
+        grid[rr][x]=xx*grid[l][x]+yy*grid[r][x]; cntr[rr]++; cnt++; grid[rr][x].norm();
         findcol(x,l,ll);findcol(x,rr,r);
     }
     else
     {
-        int mid=(l+r)/2;
+        ll mid=(l+r)/2;
         frac half=frac(1,2);
-        grid[mid][x]=half*grid[l][x]+half*grid[r][x]; cntr[mid]++; grid[mid][x].norm();
+        grid[mid][x]=half*grid[l][x]+half*grid[r][x]; cntr[mid]++; cnt++; grid[mid][x].norm();
         findcol(x,l,mid);findcol(x,mid,r);
     }
 }
-void solvecol(int x)
+void solvecol(ll x)
 {
-    int last=-1;
-    for(int i=1;i<=n;i++)
+    ll last=-1;
+    for(ll i=1;i<=n;i++)
     {
-        if(grid[i][x].p!=-1)
+        if(grid[i][x].q!=-1)
         {
             if(last!=-1) findcol(x,last,i);
             last=i;
         }
     }
-    for(int i=1;i<=n;i++)
+    for(ll i=1;i<=n;i++)
     {
-        if(grid[i][x].p!=-1)
+        if(grid[i][x].q!=-1)
         {
-            for(int j=i-1;j>=1;j--)
+            for(ll j=i-1;j>=1;j--)
             {
                 frac two=frac(2,1);
-                grid[j][x]=two*grid[j+1][x]-grid[j+2][x];
+                grid[j][x]=two*grid[j+1][x]-grid[j+2][x]; grid[j][x].norm();
                 cntr[j]++;cnt++;
             }
             break;
         }
     }
-    for(int i=n;i>=1;i--)
+    for(ll i=n;i>=1;i--)
     {
-        if(grid[i][x].p!=-1)
+        if(grid[i][x].q!=-1)
         {
-            for(int j=i+1;j<=n;j++)
+            for(ll j=i+1;j<=n;j++)
             {
                 frac two=frac(2,1);
-                grid[j][x]=two*grid[j-1][x]-grid[j-2][x];
+                grid[j][x]=two*grid[j-1][x]-grid[j-2][x];grid[j][x].norm();
                 cntr[j]++;cnt++;
             }
             break;
         }
     }
 }
+void try_to_fill(ll x)
+{
+    for(ll i=1;i<=n;i++)
+        for(ll j=1;j<=m;j++)
+        {
+            if(grid[i][j].q==-1)
+            {
+                grid[i][j]=frac(x,1);cnt++;cntr[i]++;cntc[j]++;
+                return;
+            }
+        }
+}
+void update()
+{
+    while(cnt<n*m)
+    {
+        bool f=false;
+        for(ll i=1;i<=n;i++)
+        {
+            if(cntr[i]>=2&&cntr[i]!=m)
+            {
+                solverow(i);cntr[i]=m;
+                f=true;break;
+            }
+        }
+        if(f) continue;
+        for(ll i=1;i<=m;i++)
+        {
+            if(cntc[i]>=2&&cntc[i]!=n)
+            {
+                solvecol(i);cntc[i]=n;
+                f=true;break;
+            }
+        }
+        if(!f) break;
+    }
+}
+void complete()
+{
+    while(cnt<n*m)
+    {
+        try_to_fill(1);
+        update();
+    }
+}
 bool check()
 {
-    for(int i=1;i<=n;i++)
+    for(ll i=1;i<=n;i++)
     {
-        for(int j=1;j<=m;j++)
+        for(ll j=1;j<=m;j++)
         {
-            if(i>1&&i<n&&grid[i][j].p!=-1&&grid[i-1][j].p!=-1&&grid[i+1][j].p!=-1)
+            if(i>1&&i<n&&grid[i][j].q!=-1&&grid[i-1][j].q!=-1&&grid[i+1][j].q!=-1)
             {
                 frac two=frac(2,1);
                 if(two*grid[i][j]!=grid[i-1][j]+grid[i+1][j]) return false;
             }
-            if(j>1&&j<m&&grid[i][j].p!=-1&&grid[i][j-1].p!=-1&&grid[i][j+1].p!=-1)
+            if(j>1&&j<m&&grid[i][j].q!=-1&&grid[i][j-1].q!=-1&&grid[i][j+1].q!=-1)
             {
                 frac two=frac(2,1);
                 if(two*grid[i][j]!=grid[i][j-1]+grid[i][j+1]) return false;
@@ -180,45 +236,66 @@ bool check()
     }
     return true;
 }
+void output()
+{
+    for(ll i=1;i<=n;i++)
+    {
+        for(ll j=1;j<=m;j++)
+        {
+            grid[i][j].print();
+            if(j==m) printf("\n"); else printf(" ");
+        }
+    }
+}
+void record()
+{
+    dummy=cnt;
+    for(ll i=1;i<=n;i++) dumr[i]=cntr[i];
+    for(ll i=1;i<=m;i++) dumc[i]=cntc[i];
+    for(ll i=1;i<=n;i++)
+        for(ll j=1;j<=m;j++)
+            ori[i][j]=grid[i][j];
+}
+void rollback()
+{
+    cnt=dummy;
+    for(ll i=1;i<=n;i++) cntr[i]=dumr[i];
+    for(ll i=1;i<=m;i++) cntc[i]=dumc[i];
+    for(ll i=1;i<=n;i++)
+        for(ll j=1;j<=m;j++)
+            grid[i][j]=ori[i][j];
+}
 int main()
 {
-    scanf("%d%d",&n,&m);
+    scanf("%lld%lld",&n,&m);
     cnt=0;
-    for(int i=1;i<=n;i++)
+    for(ll i=1;i<=n;i++)
     {
-        for(int j=1;j<=m;j++)
+        for(ll j=1;j<=m;j++)
         {
             scanf("%s",str);
             if(str[0]=='?') grid[i][j]=frac(-1,-1);
             else
             {
-                int p=atoi(str);
-                grid[i][j]=frac(p,1);
+                ll p=atoi(str);
+                grid[i][j]=frac(p,1);grid[i][j].norm();
                 cntr[i]++;cntc[j]++;cnt++;
             }
         }
     }
-    while(cnt<n*m)
+    update();
+    if(!check()) {puts("None"); return 0;}
+    else if(cnt==n*m)
     {
-        bool f=false;
-        for(int i=1;i<=n;i++)
-        {
-            if(cntr[i]>=2&&cntr[i]!=m)
-            {
-                solver(i);
-                f=true;break;
-            }
-        }
-        if(f) continue;
-        for(int i=1;i<=m;i++)
-        {
-            if(cntc[i]>=2&&cntc[i]!=m)
-            {
-                solvec(i);
-                f=true;break;
-            }
-        }
+        puts("Unique");output();
+        return 0;
     }
-    if(!check())
+    else
+    {
+        puts("Multiple");
+        record();try_to_fill(1);update();complete();output();
+        puts("and");
+        rollback();try_to_fill(2);update();complete();output();
+    }
     return 0;
 }
