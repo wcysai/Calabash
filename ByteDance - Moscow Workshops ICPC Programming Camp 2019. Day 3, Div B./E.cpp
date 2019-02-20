@@ -8,7 +8,7 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-int n,c,w,tot;
+int n,c,w,tot,cnt=0;
 int a[MAXN];
 map<int,int> mp;
 bool has[MAXN],opt[MAXN];
@@ -20,24 +20,19 @@ int read()
 }
 void decline()
 {
-    puts("decline");
+    puts("decline");cnt++;assert(cnt<=1000);
     fflush(stdout);
 }
 void accept()
 {
-    puts("accept");
+    puts("accept");cnt++;assert(cnt<=1000);
     fflush(stdout);
 }
 void stop()
 {
-    puts("stop");
+    puts("stop");cnt++;assert(cnt<=1000);
     fflush(stdout);
     exit(0);
-}
-void montecarlo()
-{
-    int x=read(),d=x-w;
-    mp[d]++;decline();
 }
 int findopt()
 {
@@ -58,16 +53,14 @@ int findopt()
 }
 void move(int x)
 {
-    bool f=false;
     for(int j=0;j<n;j++) 
     {
         if(a[j]==abs(x))
         {
-            f=true;
             if(x<0&&has[j]&&!opt[j])
             {
                 has[j]=false;
-                accept();w-=x;
+                accept();w+=x;
                 return;
             }
             if(x>0&&!has[j]&&opt[j])
@@ -78,26 +71,33 @@ void move(int x)
             }
         }
     }
-    assert(f);
     decline();
 }
 int main()
 {
     scanf("%d%d%d",&n,&c,&w);
     accept();
-    for(int i=0;i<35*n;i++) montecarlo();
-    tot=0;
-    for(auto p:mp)
+    while(w>0)
     {
-        int cnt=p.S,v=cnt/35;
-        if((v+1)*35-cnt<=cnt-v*35) v++;
-        for(int j=0;j<v;j++) 
+        int x=read();
+        if(x<w) 
         {
-            a[tot]=abs(p.F);
-            has[tot++]=(p.F<0?true:false);
+            accept();w=x;
         }
+        else decline();
     }
-    assert(tot==n);
+    tot=0;
+    while(tot<n)
+    {
+        int x=read();
+        if(x>w)
+        {
+            a[tot++]=x-w;
+            accept();w=x;
+        }
+        else decline();
+    }
+    memset(has,true,sizeof(has));
     int ans=findopt();
     if(ans==w)
     {
@@ -110,7 +110,7 @@ int main()
                 if(x<0&&has[j])
                 {
                     has[j]=false;
-                    accept();w-=x;f=true;
+                    accept();w+=x;f=true;
                     break;
                 }
                 if(x>0&&!has[j])
