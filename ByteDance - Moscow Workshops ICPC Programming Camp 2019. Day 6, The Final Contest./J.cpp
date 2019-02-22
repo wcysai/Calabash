@@ -49,19 +49,16 @@ int main()
         {
             if(t[j]) continue;
             if(!f) break;
-            ll save=0;
+            ll save=0,ssave=0;
             for(ll k=m-1;k>=0;k--)
             {
                 if(!(i&(1<<k))) continue;
-                if(a[j][k]>cnt)
-                {
-                    f=false;
-                    break;
-                }
-                cnt-=a[j][k];
+                save-=a[j][k];
+                ssave=max(ssave,-save);
                 save+=b[j][k];
             }
-            cnt+=save;
+            cnt-=ssave;
+            if(cnt<0) f=false;
         }
         if(f) mask.push_back(i);
     }
