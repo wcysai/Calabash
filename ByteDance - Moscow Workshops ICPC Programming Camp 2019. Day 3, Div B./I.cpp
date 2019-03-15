@@ -1,12 +1,4 @@
-/*************************************************************************
-    > File Name: C.cpp
-    > Author: Roundgod
-    > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-10-03 16:44:25
- ************************************************************************/
-
 #pragma GCC optimize(3)
-#include<gmpxx.h>
 #include<bits/stdc++.h>
 #define MODO 998244353
 #define MAXN 100005
