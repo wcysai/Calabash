@@ -50,10 +50,14 @@ int main()
         if(col[c]!=-1&&col[c]!=y) flag=false;
         row[r]=x; col[c]=y;
     }
+   /* for(int i=1;i<=H;i++) printf("%d ",row[i]);
+    puts("");
+    for(int i=1;i<=W;i++) printf("%d ",col[i]);
+    puts(""); */
     if(!flag) {puts("0"); return 0;}
     memset(dp1,0,sizeof(dp1));
     memset(dp2,0,sizeof(dp2));
-    if(row[1]==-1) dp1[1][0][0]=dp1[1][0][1]=1; else dp1[1][0][row[1]]=1;
+    if(row[1]==-1) dp1[1][0][0]=dp1[1][0][1]=1; else dp1[1][0][row[1]^1]=1;
     for(int i=1;i<H;i++)
     {
         for(int j=0;j<4;j++)
@@ -63,9 +67,9 @@ int main()
                 if(!dp1[i][j][k]) continue;
                 for(int l=0;l<2;l++)
                 {
-                    if(row[i+1]!=-1&&l!=row[i+1]) continue;
+                    if(row[i+1]!=-1&&l!=((row[i+1]+i+1)&1)) continue;
                     int newmask=j;
-                    if(l==k) 
+                    if(l!=k) 
                     {
                         if(newmask&(1<<l)) continue;
                         newmask|=(1<<l);
@@ -75,7 +79,7 @@ int main()
             }
         }
     }
-    if(col[1]==-1) dp2[1][0][0]=dp2[1][0][1]=1; else dp2[1][0][col[1]]=1;
+    if(col[1]==-1) dp2[1][0][0]=dp2[1][0][1]=1; else dp2[1][0][col[1]^1]=1;
     for(int i=1;i<W;i++)
     {
         for(int j=0;j<4;j++)
@@ -85,9 +89,9 @@ int main()
                 if(!dp2[i][j][k]) continue;
                 for(int l=0;l<2;l++)
                 {
-                    if(col[i+1]!=-1&&l!=col[i+1]) continue;
+                    if(col[i+1]!=-1&&l!=((col[i+1]+i+1)&1)) continue;
                     int newmask=j;
-                    if(l==k) 
+                    if(l!=k) 
                     {
                         if(newmask&(1<<l)) continue;
                         newmask|=(1<<l);
