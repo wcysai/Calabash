@@ -39,15 +39,17 @@ int sieve(int n)
     mu[1]=1; g[1]=1;
     for(int i=2;i<=n;i++)
     {
-        if(is_prime[i]) {prime[p++]=i; mu[i]=-1; f[i]=2*i-1; phi[i]=i-1; g[i]=i-1;}
+        if(is_prime[i]) {prime[p++]=i; mu[i]=-1; f[i]=2*i-1; phi[i]=i-1; g[i]=i;}
         for(int j=0;j<p;j++)
         {
             if(prime[j]*i>n) break;
             is_prime[prime[j]*i]=false;
             mu[i*prime[j]]=i%prime[j]?-mu[i]:0;
             phi[i*prime[j]]=phi[i]*(i%prime[j]?prime[j]-1:prime[j]);
-            g[i*prime[j]]=(i%prime[j]?prime[j]-1:g[i]*prime[j]);
-            f[i*prime[j]]=(i%prime[j]?1LL*f[i]*f[prime[j]]%MOD:(1LL*f[i]*prime[j]+g[i*prime[j]])%MOD);
+            g[i*prime[j]]=(i%prime[j]?prime[j]:g[i]*prime[j]);
+            if(i%prime[j]) f[i*prime[j]]=1LL*f[i]*f[prime[j]]%MOD;
+            else if(g[i]==i) f[i*prime[j]]=(1LL*f[i]*prime[j]+phi[i*prime[j]])%MOD;
+            else f[i*prime[j]]=1LL*f[i/g[i]]*f[g[i]*prime[j]]%MOD;
             if(i%prime[j]==0) break;
         }
     }
@@ -63,7 +65,7 @@ int main()
     {
         sum[i]=((3LL*i+3)*f[i]+i)%MOD;
         add(sum[i],sum[i-1]);
-    }
+    } 
     scanf("%d",&t);
     while(t--)
     {
