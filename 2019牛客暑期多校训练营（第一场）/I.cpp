@@ -41,8 +41,7 @@ struct segtree
         lazy[k]=0;
         if(l==r)
         {
-            if(l==1) maxi[k]=0;
-            else maxi[k]=-INF;
+            maxi[k]=0;
             return;
         }
         ll mid=(l+r)/2;
@@ -104,7 +103,7 @@ int main()
             ll v=seg.query(1,1,sz,1,y),val=seg.query(1,1,sz,y,y);
             seg.update(1,1,sz,1,y-1,p.cost); seg.update(1,1,sz,y,y,v-val);
         }
-        printf("%lld\n",seg.query(1,1,sz,1,sz)+ans);
+        printf("%lld\n",max(0LL,seg.query(1,1,sz,1,sz))+ans);
     }
     return 0;
 }
