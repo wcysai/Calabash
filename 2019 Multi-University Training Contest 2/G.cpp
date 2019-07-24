@@ -7,99 +7,88 @@
 using namespace std;
 typedef long long ll;
 typedef pair<int,int> P;
-struct node
-{
-    int type,x,y;
-};
-typedef vector<node> vec;
-typedef vector<vec> mat;
 //0: . 1: O 2: X
-mat op;
 int T,n;
 int p3[10];
 char str[10];
 double dp[(1<<18)];
-struct node
+int getval(char ch)
 {
-    int x;
-    void setbit(int b,int v)
-    {
-
-    }
-}
-P getpos(int x)
-{
-    return make_pair(x/3,x%3);
-}
-P getid(P p)
-{
-    return 3*p.F+p.S;
+    if(ch=='.'||ch=='#') return 0;
+    if(ch=='O') return 1;
+    return 2;
 }
 
-double getans(double lmaxi,double rmini)
+double getans(double l,double r)
 {
-    assert(!(lmaxi==0&&rmini==0));
-    if(lmaxi==-INF&&rmini==INF) return 0;
-    if(lmaxi==-INF) return rmini-1;
-    if(rmini==INF) return lmaxi+1;
-    if(lmaxi<0&&rmini>0) return 0.0;
-    if(lmaxi<0&&rmini<0) return -getans(-rmini,-lmaxi);
+    assert(l<r);
+    assert(!(l==0&&r==0));
+    if(l==-INF&&r==INF) return 0;
+    if(l==-INF) return r-1;
+    if(r==INF) return l+1;
+    if(l<0&&r>0) return 0.0;
+    if(l<0&&r<=0) return -getans(-r,-l);
     double res=1.0;
     while(true)
     {
         double t=0.0;
-        while(t<=lmaxi) t+=res;
-        if(t<rmini) return t;
+        while(t<=l) t+=res;
+        if(t<r) return t;
         res/=2.0;
     }
     assert(0);
 }
-double dfs()
-{ 
-    double lmaxi=-INF,rmini=INF;
-    bool f=true;
-    for(int i=0;i<3;i++)
+bool check(int mask)
+{
+    for(int i=0;i<9;i++)
     {
-        for(int j=0;j<3;j++)
-        {
-            if(mp[i][j]=='O')
-            {
-                f=false;
-                block(i,j,1); lmaxi=max(lmaxi,dfs()); rollback();
-                block(i,j,2); lmaxi=max(lmaxi,dfs()); rollback();
-                block(i,j,3); lmaxi=max(lmaxi,dfs()); rollback();
-            }
-        }
+        int res=(mask>>(2*i))&3;
+        if(res==3) return false;
     }
-    if(!f)
-    {
-        int cnt=0;
-        for(int i=0;i<3;i++)
-            for(int j=0;j<3;j++)
-                if(mp[i][j]=='X') cnt++;
-        return -cnt;
-    }
-    else
-    {
-        for(int i=0;i<3;i++)
-        {
-            for(int j=0;j<3;j++)
-            {
-                if(mp[i][j]=='X')
-                {
-                    block(i,j,0); 
-                    rmini=min(rmini,dfs()); 
-                    rollback();
-                }
-            }
-        }
-    }
-    return getans(lmaxi,rmini);
+    return true;
+}
+void erasebit(int &mask,int x,int y)
+{
+    if(x<0||x>=3||y<0||y>=3) return;
+    int b=x*3+y;
+    int val=(1<<18)-1;
+    val^=(1<<(2*b)); val^=(1<<(2*b+1));
+    mask&=val;
 }
 int main()
 {
-    p3[0]=1;
-    for(int i=1;i<=9;i++) p3[i]=3*p3[i-1];
+    for(int mask=0;mask<(1<<18);mask++) dp[mask]=0.0;
+    for(int mask=0;mask<(1<<18);mask++)
+    {
+        if(!check(mask)) continue;
+        bool f=true;
+        for(int i=0;i<9;i++) if(((mask>>(2*i))&3)==1) {f=false; break;}
+        if(f)
+        {
+            int cnt=0;
+            for(int i=0;i<9;i++) if(((mask>>(2*i))&3)==2) cnt++;
+            dp[mask]=-cnt;
+            continue;
+        }
+        double l=-INF,r=INF;
+        for(int i=0;i<9;i++)
+        {
+            int v=(mask>>(2*i))&3;
+            if(v!=1) continue;
+            int x=i/3,y=i%3;
+            int newmask=mask; erasebit(newmask,x,y); erasebit(newmask,x,y-1); erasebit(newmask,x,y+1); l=max(l,dp[newmask]);
+            newmask=mask; erasebit(newmask,x,y); erasebit(newmask,x-1,y); erasebit(newmask,x+1,y); l=max(l,dp[newmask]);
+            newmask=mask; erasebit(newmask,x,y); erasebit(newmask,x-1,y); erasebit(newmask,x+1,y); erasebit(newmask,x,y-1); erasebit(newmask,x,y+1); l=max(l,dp[newmask]);
+        }
+        for(int i=0;i<9;i++)
+        {
+            int v=(mask>>(2*i))&3;
+            if(v!=2) continue;
+            int x=i/3,y=i%3;
+            int newmask=mask; erasebit(newmask,x,y); r=min(r,dp[newmask]);
+        }
+        dp[mask]=getans(l,r);
+    }
     scanf("%d",&T);
     while(T--)
     {
@@ -107,14 +96,18 @@ int main()
         double ans=0.0;
         for(int i=0;i<n;i++)
         {
+            int mask=0;
+            vector<int> v; v.clear();
             for(int j=0;j<3;j++) 
             {
                 scanf("%s",str);
-                mp[j][0]=str[0];
-                mp[j][1]=str[2];
-                mp[j][2]=str[4];
+                v.push_back(getval(str[0]));
+                v.push_back(getval(str[2]));
+                v.push_back(getval(str[4]));
             }
-            ans+=dfs();
+            reverse(v.begin(),v.end());
+            for(int j=0;j<9;j++) mask=(mask<<2)+v[j];
+            ans+=dp[mask];
         }
         if(ans>0.0) puts("Alice"); else if(ans<0.0) puts("Bob"); else puts("Second");
     }
