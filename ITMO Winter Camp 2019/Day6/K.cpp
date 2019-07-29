@@ -1,92 +1,131 @@
-#pragma GCC optimize(3)
-#include<bits/stdc++.h>
-#define MAXN 100005
-#define INF 1000000000
-#define MOD 1000000007
-#define F first
-#define S second
+#include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
-typedef pair<int,int> P;
-int n,m;
-namespace ZL
-{
-    const int N=605,M=100010,inf=1e9;
-    struct edge
-    {
-        int u,v,w,use,id;
-    }b[M],a[2000100];
-    int n,m,ans,pre[N],id[N],vis[N],root,In[N],h[N],len,way[M];
-    void init(int _n,int _root)
-    {
-        n=_n; m=0; b[0].w=inf; root=_root; ans=0;
-    }
-    void add(int u,int v,int w)
-    {
-        b[++m]=(edge){u,v,w,0,m};
-        a[m]=b[m];
-    }
-    int work()
-    {
-        len=m;
-        for(;;)
-        {
-            for(int i=1;i<=n;i++) {pre[i]=0; In[i]=inf; id[i]=0; vis[i]=0; h[i]=0;}
-            for(int i=1;i<=m;i++)
-                if(b[i].u!=b[i].v&&b[i].w<In[b[i].v])
-                {
-                    pre[b[i].v]=b[i].u; In[b[i].v]=b[i].w; h[b[i].v]=b[i].id;
-                }
-            for(int i=1;i<=n;i++) if(pre[i]==0&&i!=root) return 0;
-            int cnt=0; In[root]=0;
-            for(int i=1;i<=n;i++)
-            {
-                if(i!=root) a[h[i]].use++;
-                int now=i; ans+=In[i];
-                while(vis[now]==0&&now!=root)
-                {
-                    vis[now]=i; now=pre[now];
-                }
-                if(now!=root&&vis[now]==i)
-                {
-                    cnt++; int kk=now;
-                    while(1)
-                    {
-                        id[now]=cnt; now=pre[now];
-                        if(now==kk) break;
-                    }
-                }
-            }
-            if(cnt==0) return 1;
-            for(int i=1;i<=n;i++) if(id[i]==0) id[i]=++cnt;
-            for(int i=1;i<=m;i++)
-            {
-                int k1=In[b[i].v]; int k2=b[i].v;
-                b[i].u=id[b[i].u]; b[i].v=id[b[i].v];
-                if(b[i].u!=b[i].v)
-                {
-                    b[i].w-=k1; a[++len].u=b[i].id; a[len].v=h[k2];
-                    b[i].id=len;
-                }
-            }
-            n=cnt;
-            root=id[root];
-        }
-        return 1;
-    }
-}
-int main()
-{
-    scanf("%d%d",&n,&m);
-    ZL::init(2*n+1,1);
-    for(int i=0;i<m;i++)
-    {
-        int u,v,w;scanf("%d%d%d",&u,&v,&w);
-        ZL::add(u+1,v+n+1,w);
-    }
-    for(int i=1;i<=n;i++) ZL::add(1,i+1,0);
-    ZL::work();
-    printf("%d\n",ZL::ans);
-    return 0;
+
+#define rep(i, n) for (int i = 0; i < int(n); i++)
+#define Rep(i, n) for (int i = 1; i <=int(n); i++)
+#define range(x)  begin(x), end(x)
+
+const int maxn = 305;
+const int inf = 1000000000;
+int w[maxn][maxn], x[maxn], y[maxn];
+int prev_x[maxn], prev_y[maxn],son_y[maxn],slack[maxn],par[maxn];
+int lx, ly,pop;
+
+void adjust(int v){ 
+    son_y[v]=prev_y[v];
+    if(prev_x[son_y[v]]!=-2)
+        adjust(prev_x[son_y[v]]);
 }
 
+bool find(int v){
+    int i;
+    for(i=0;i<pop;i++)
+        if(prev_y[i]==-1) {
+            if(slack[i]>x[v]+y[i]-w[v][i]){
+                slack[i]=x[v]+y[i]-w[v][i];
+                par[i]=v;
+            }
+            if(x[v]+y[i]==w[v][i]){
+                prev_y[i]=v;
+                if(son_y[i]==-1){
+                    adjust(i);
+                    return true;
+                }
+                if(prev_x[son_y[i]]!=-1)
+                    continue;
+                prev_x[son_y[i]]=i;
+                if(find(son_y[i]))
+                    return true;
+            }
+        }
+    return false;
+}
+
+int km() {
+    int i,j,m;
+    for(i=0;i<pop;i++){
+        son_y[i]=-1;
+        y[i]=0;
+    }
+    for(i=0;i<pop;i++){
+        x[i]=0;
+        for(j=0;j<pop;j++)
+            x[i]=max(x[i],w[i][j]);
+    }
+    bool flag;
+    for(i=0;i<pop;i++){
+        for(j=0;j<pop;j++){
+            prev_x[j]=prev_y[j]=-1;
+            slack[j]=inf;
+        }
+        prev_x[i]=-2;
+        if(find(i))continue;
+        flag=false;
+        while (!flag){
+            m=inf;
+            for(j=0;j<pop;j++)
+                if(prev_y[j]==-1)
+                    m=min(m,slack[j]);
+            for(j=0;j<pop;j++) {
+                if(prev_x[j]!=-1)
+                    x[j]-=m;
+                if(prev_y[j]!=-1)
+                    y[j]+=m;
+                else
+                    slack[j]-=m;
+            }
+            for(j=0;j<pop;j++)
+                if(prev_y[j]==-1&&!slack[j]) {
+                    prev_y[j]=par[j];
+                    if(son_y[j]==-1){
+                        adjust(j);
+                        flag=true;
+                        break;
+                    }
+                    prev_x[son_y[j]]=j;
+                    if(find(son_y[j])){
+                        flag=true;
+                        break;
+                    }
+                }
+        }
+    }
+    int ans=0;
+    for(int i=0;i<pop;i++)
+        ans+=w[son_y[i]][i];
+    return ans;
+    
+}
+
+int n,m;
+int ml[305], mr[305];
+int main() {
+    freopen("kingandroads.in","r",stdin);
+    freopen("kingandroads.out","w",stdout);
+    scanf("%d%d",&n,&m); pop=n;
+    Rep(i,n) ml[i]=mr[i]=INT_MAX;
+    vector<tuple<int,int,int>> edges;
+    rep (i, m){
+        int u,v,w;scanf("%d%d%d",&u,&v,&w);
+        edges.emplace_back(u,v,w);
+        ml[u]=min(ml[u],w);
+        mr[v]=min(mr[v],w);
+    }
+    int ans=0;
+    Rep(i,n){
+        if(ml[i]==INT_MAX or mr[i]==INT_MAX){
+            puts("NIE");
+            return 0;
+        }
+        ans+=ml[i]+mr[i];
+    }
+    for(auto e:edges){
+        int u,v,w;
+        tie(u,v,w)=e;
+        u--;v--;
+        ::w[u][v]=max(::w[u][v],-w+(ml[u+1]+mr[v+1]));
+    }
+    ans-=km();
+    cout<<ans<<endl;
+    return 0;
+}

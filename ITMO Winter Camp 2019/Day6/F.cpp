@@ -1,39 +1,52 @@
-#pragma GCC optimize(3)
-#include<bits/stdc++.h>
-#define MAXN 100005
-#define INF 1000000000
-#define MOD 1000000007
-#define F first
-#define S second
+#include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
-typedef pair<int,int> P;
-int n,m,d;
-vector<P> G[MAXN];
-int deg[MAXN],need[MAXN];
-bool rem[MAXN];
-int main()
-{
-    scanf("%d%d%d",&n,&m,&d);
-    for(int i=0;i<m;i++)
-    {
-        int u,v;
-        scanf("%d%d",&u,&v);
-        G[u].push_back(P(v,i));G[v].push_back(P(u,i));
-        deg[u]++;deg[v]++;
-    }
-    memset(rem,true,sizeof(rem));
-    int mind=INF;
-    for(int i=1;i<=n;i++) mind=min(mind,deg[i]);
-    if(mind<d-1)
-    {
-        puts("NO");
-        return 0;
-    }
-    if(mind==d-1)
-    {
-        
-    }
-    return 0;
+
+#define rep(i, n) for (int i = 0; i < n; i++)
+#define Rep(i, n) for (int i = 1; i <=n; i++)
+#define range(x)  begin(x), end(x)
+int n, m, d, dc;
+int deg[320];
+int adj[320][320];
+
+vector<int> rem;
+
+void remove(int x, int y) {
+    rem.push_back(adj[x][y]);
+    adj[x][y] = adj[y][x] = 0;
+    deg[x]--; deg[y]--;
 }
 
+int main() {
+    freopen("funny.in", "r", stdin);
+    freopen("funny.out", "w", stdout);
+    scanf("%d%d%d", &n, &m, &d);
+    Rep (i, m) {
+        int u, v; scanf("%d%d", &u, &v);
+        u-- ; v--;
+        adj[u][v] = adj[v][u] = i;
+        deg[u]++; deg[v]++;
+    }
+    dc = *min_element(deg, deg + n);
+    if (dc < d) {
+        cout << "NO" << endl;
+        return 0;
+    }
+    while (dc > d) {
+        rep (i, n) {
+            if (deg[i] != dc) continue;
+            rep (j, n) {
+                if (adj[i][j] and deg[j] >= d - 1) {
+                    remove(i, j);
+                    break;
+                }
+            }
+            
+        }
+        dc--;
+    }
+    sort(range(rem));
+    cout << "YES" << endl;
+    cout << rem.size() << endl;
+    for (int x : rem) cout << x << ' ';
+    return 0;
+}
