@@ -60,7 +60,6 @@ void solve(int lmask,int rmask)
         }
     }
     dfs(0);
-    printf("%d %d %d %d\n",lmask,rmask,ans,sz);
 }
 int main()
 {
