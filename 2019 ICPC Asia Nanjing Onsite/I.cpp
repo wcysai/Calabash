@@ -11,7 +11,8 @@ typedef long long ll;
 typedef pair<int,int> P;
 int n,cur,tot,maxi,a[MAXN],cnt[MAXK],fact[MAXN],invf[MAXN];
 int tmp[MAXK];
-unordered_map<ll,int> dp;
+vector<ll> hashes;
+int dp[1500005];
 vector<P> encode[1500005];
 void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD;}
 int pow_mod(int a,int i)
@@ -50,7 +51,7 @@ void dfs(int now,int sum)
         for(int j=0;j<50;j++) if(tmp[j+1]) encode[tot].push_back(P(j+1,tmp[j+1]));
         return;
     }
-    for(int i=0;sum+i*now<maxi-cur;i++)
+    for(int i=0;i<=cnt[now]&&sum+i*now<maxi-cur;i++)
     {
         dfs(now+1,sum+i*now);
         tmp[now]++;
@@ -73,26 +74,27 @@ ll get_hash(vector<P> &v)
 }
 int get_dp(vector<P> &v)
 {
-    vector<P> tmp; tmp.clear();
-    for(auto p:v) if(p.S!=0) tmp.push_back(p);
-    if(tmp.size()==0) return 1;
     ll hsh=get_hash(v);
-    if(dp.find(hsh)!=dp.end()) return dp[hsh];
-    int s=get_sum(tmp);
-    for(auto &p:tmp)
+    if(hsh==0) return 1;
+    int id=lower_bound(hashes.begin(),hashes.end(),hsh)-hashes.begin();
+    if(dp[id]!=-1) return dp[id];
+    dp[id]=0;
+    int s=get_sum(v);
+    for(auto &p:v)
     {
         int x=p.F;
         if(p.S&&x<=s+cur-x)
         {
             p.S--;
-            add(dp[hsh],1LL*get_dp(tmp)*(p.S+1)%MOD);
+            add(dp[id],1LL*get_dp(v)*(p.S+1)%MOD);
             p.S++;
         }
     }
-    return dp[hsh];
+    return dp[id];
 }
 int main()
 {
+    //freopen("1.in","r",stdin);
     fact[0]=invf[0]=1;
     for(int i=1;i<=100000;i++) fact[i]=1LL*fact[i-1]*i%MOD;
     invf[100000]=pow_mod(fact[100000],MOD-2);
@@ -113,6 +115,9 @@ int main()
     tot=0;
     dfs(1,0);
     int ans=0;
+    for(int i=1;i<=tot;i++) hashes.push_back(get_hash(encode[i]));
+    sort(hashes.begin(),hashes.end());
+    memset(dp,-1,sizeof(dp));
     for(int i=1;i<=tot;i++)
     {
         int s=get_sum(encode[i]);
