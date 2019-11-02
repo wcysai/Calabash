@@ -128,9 +128,6 @@ int main()
         add(0,a[i]-1,tmp);
         add(a[i]+1,sz-1,-f[a[i]]);
         addf(a[i]+1,sz-1);
-        /*printf("i=%d\n",i);
-        for(int j=0;j<=5;j++) printf("%lld ",get_val(j));
-        puts("");*/
     }
     ll ans=INF;
     for(int i=0;i<sz;i++) ans=min(ans,get_val(i));
