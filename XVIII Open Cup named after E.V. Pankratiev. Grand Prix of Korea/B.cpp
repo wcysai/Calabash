@@ -12,13 +12,6 @@ typedef pair<int,int> P;
 int n,c[MAXN],fact[MAXM],invf[MAXM],inv[MAXM];
 int res[MAXK][MAXK];
 int dp[MAXN][MAXM];
-//dp[i][j][0/1/2]:
-//i: current number
-//j: number of parts
-//the third states represents:
-//0: not glued
-//1: glued but not final
-//2: glued, final decision
 void add(int &a,int b) {a+=b; if(a>=MOD) a-=MOD;}
 void dec(int &a,int b) {a-=b; if(a<0) a+=MOD;}
 int pow_mod(int a,int i)
