@@ -32,7 +32,6 @@ void dfs(int v,int p)
     {
         no_father[v]=no_father_twice[v]=a[v]; no_come_back[v]=0;
         prob_back[v]=1;
-        printf("%d %d %d %d %d\n",v,no_come_back[v],prob_back[v],no_father[v],no_father_twice[v]);
         return;
     }
     if(p) prob_back[v]=inv[sz[v]];
@@ -71,7 +70,6 @@ void dfs(int v,int p)
     }
     no_father[v]=1LL*no_father[v]*inv[son[v]]%MOD;
     no_come_back[v]=1LL*no_come_back[v]*inv[son[v]+1]%MOD;
-    printf("%d %d %d %d %d\n",v,no_come_back[v],prob_back[v],no_father[v],no_father_twice[v]);
 }
 int main()
 {
