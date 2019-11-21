@@ -1,10 +1,3 @@
-/*************************************************************************
-    > File Name: D.cpp
-    > Author: Roundgod
-    > Mail: wcysai@foxmail.com 
-    > Created Time: 2018-12-06 17:11:42
- ************************************************************************/
-
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define MAXN 100005
@@ -28,7 +21,7 @@ int main()
         ll m=1;
         for(ll i=1;i<=n;i++) m=lcm(m,i);
         s=0;
-        for(ll i=1;i<=n;i++) 
+        for(ll i=1;i<=n;i++)
         {
             scanf("%lld",&a[i]);
             s+=i*a[i];
@@ -46,7 +39,7 @@ int main()
                     deq[t++]=val;
                     if(val) cnt++;
                     if(cnt) dp[k*i+j]=true; else dp[k*i+j]=false;
-                    if(t-s>a[i]) 
+                    if(t-s>a[i])
                     {
                         if(deq[s]) cnt--;
                         s++;
@@ -65,7 +58,7 @@ int main()
         }
         for(ll i=1;i<=m;i++)
         {
-            if(dp[n*m-i]) 
+            if(dp[n*m-i])
             {
                 ll l=n*m-i+m,r=s-n*m;
                 if(r>=l) ans+=(r-l)/m+1;
