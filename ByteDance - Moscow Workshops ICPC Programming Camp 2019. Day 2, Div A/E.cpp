@@ -20,7 +20,8 @@ inline int id(char c) { return c - 'a'; }
 
 int tot, m;
 
-inline int addmod(int& x, int y) {
+inline int addmod(int& x, int y) 
+{
     x += y;
     if (x >= mod) x -= mod;
     return x;
